@@ -11,8 +11,9 @@ import (
 )
 
 type RouterOpts struct {
-	UserHandler *handler.UserHandler
-	AuthHandler *handler.AuthHandler
+	UserHandler   *handler.UserHandler
+	AuthHandler   *handler.AuthHandler
+	ReportHandler *handler.ReportHandler
 }
 
 func NewRouter(opts RouterOpts) *gin.Engine {
@@ -29,6 +30,14 @@ func NewRouter(opts RouterOpts) *gin.Engine {
 	})
 	router.Use(middleware.CorsHandler())
 	router.Use(middleware.Logger(logger.NewLogger()))
+
+	report := router.Group("/reports")
+	report.GET("/", opts.ReportHandler.ListReport)
+	report.GET("/:id", opts.ReportHandler.FindReportByID)
+	report.POST("/", opts.ReportHandler.CreateReport)
+	report.PUT("/:id", opts.ReportHandler.UpdateReport)
+	report.DELETE("/:id", opts.ReportHandler.DeleteReport)
+
 	router.Use(middleware.AuthorizeHandler())
 	router.Use(middleware.ErrorHandler())
 
